@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PulseAPI — API Monitoring</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+        * {
+            font-family: "Lexend", sans-serif;
+        }
+
+        body {
+            background: #ffffff;
+            color: #111111;
+            overflow-x: hidden;
+        }
+
+        .mono {
+            font-family: "JetBrains Mono", monospace;
+        }
+
+        .orange-text {
+            color: #ff6b00;
+        }
+
+        .orange-gradient {
+            background: linear-gradient(
+                135deg,
+                #ff9a3d 0%,
+                #ff6b00 48%,
+                #f4511e 100%
+            );
+        }
+
+        .soft-orange {
+            background: linear-gradient(
+                135deg,
+                rgba(255, 107, 0, .08),
+                rgba(255, 154, 61, .02)
+            );
+        }
+
+        .glow {
+            box-shadow:
+                0 25px 70px rgba(255, 107, 0, .16),
+                0 8px 25px rgba(255, 107, 0, .10);
+        }
+
+        .card-shadow {
+            box-shadow:
+                0 20px 60px rgba(17, 24, 39, .07),
+                0 4px 14px rgba(17, 24, 39, .04);
+        }
+
+        .pulse-line {
+            stroke-dasharray: 900;
+            stroke-dashoffset: 900;
+            animation: draw 3.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes draw {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .float-delay {
+            animation: float 4s ease-in-out 1.2s infinite;
+        }
+
+        @keyframes float {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-7px);
+            }
+        }
+
+        .dot {
+            animation: blink 1.8s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: .35;
+            }
+        }
+
+        .nav-link {
+            transition: color .2s ease;
+        }
+
+        .nav-link:hover {
+            color: #ff6b00;
+        }
+
+        .btn-primary {
+            transition:
+                transform .2s ease,
+                box-shadow .2s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 14px 30px rgba(255, 107, 0, .25);
+        }
+
+        .btn-secondary {
+            transition:
+                background .2s ease,
+                transform .2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #fff7f0;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 900px) {
+            .hero-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .visual {
+                margin-top: 20px;
+            }
+
+            .hero-title {
+                font-size: 52px !important;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .hero-title {
+                font-size: 42px !important;
+            }
+
+            .developer-nav {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+
+    <!-- ================= NAVBAR ================= -->
+
+    <header class="relative z-20">
+
+        <nav
+            class="max-w-[1440px] mx-auto px-6 lg:px-12 h-24 flex items-center justify-between"
+        >
+
+            <!-- LOGO -->
+
+            <a
+                href="/"
+                class="flex items-center gap-3"
+            >
+
+                <svg
+                    viewBox="0 0 48 48"
+                    class="w-10 h-10"
+                    fill="none"
+                >
+
+                    <path
+                        d="M4 25h8l5-15 7 28 6-18 4 8h10"
+                        stroke="#ff6b00"
+                        stroke-width="4"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    />
+
+                </svg>
+
+
+                <span
+                    class="text-[25px] font-extrabold tracking-tight"
+                >
+                    Pulse<span class="orange-text">API</span>
+                </span>
+
+            </a>
+
+
+            <!-- DEVELOPER NAVIGATION -->
+
+            <div
+                class="developer-nav hidden md:flex items-center gap-8 text-sm font-medium"
+            >
+
+                <a
+                    href="#monitor"
+                    class="text-orange-600 font-semibold hover:text-orange-700 transition"
+                >
+                    API Monitoring
+                </a>
+
+
+                <a
+                    href="/docs/"
+                    class="text-gray-600 hover:text-orange-600 transition"
+                >
+                    Docs
+                </a>
+
+
+                <a
+                    href="https://github.com/YOUR_USERNAME/PulseAPI"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-gray-600 hover:text-orange-600 transition"
+                >
+                    GitHub
+                </a>
+
+            </div>
+
+
+            <!-- AUTH BUTTONS -->
+
+            <div class="flex items-center gap-3">
+
+                <a
+                    href="/login/"
+                    class="hidden sm:inline-flex h-12 px-6 items-center justify-center rounded-xl border border-gray-200 bg-white text-sm font-semibold btn-secondary"
+                >
+                    Sign in
+                </a>
+
+
+                <a
+                    href="/register/"
+                    class="inline-flex h-12 px-6 items-center justify-center rounded-xl orange-gradient text-white text-sm font-semibold btn-primary"
+                >
+                    Get started
+
+                    <span class="ml-2 text-lg">
+                        →
+                    </span>
+
+                </a>
+
+            </div>
+
+        </nav>
+
+    </header>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="relative z-10">
+
+
+        <!-- ================= HERO ================= -->
+
+        <section
+            class="max-w-[1440px] mx-auto px-6 lg:px-12 pt-10 pb-10 lg:pt-14"
+        >
+
+            <div
+                class="hero-grid grid grid-cols-[.9fr_1.1fr] gap-8 xl:gap-14 items-center"
+            >
+
+
+                <!-- ================= LEFT ================= -->
+
+                <div>
+
+
+                    <!-- SMALL LABEL -->
+
+                    <div
+                        class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-orange-100 bg-orange-50 text-orange-700 text-xs font-semibold tracking-wide"
+                    >
+
+                        <span
+                            class="w-2 h-2 rounded-full bg-orange-500 dot"
+                        ></span>
+
+                        API MONITORING. MADE SIMPLE.
+
+                    </div>
+
+
+                    <!-- HEADING -->
+
+                    <h1
+                        class="hero-title mt-7 text-[68px] leading-[1.03] font-extrabold tracking-[-3px] max-w-[700px]"
+                    >
+
+                        Know when
+
+                        <br>
+
+                        your
+                        <span class="orange-text">
+                            APIs
+                        </span>
+                        fail.
+
+                    </h1>
+
+
+                    <!-- DESCRIPTION -->
+
+                    <p
+                        class="mt-6 text-lg lg:text-xl leading-8 text-gray-500 max-w-[600px]"
+                    >
+                        Monitor uptime, response time and incidents
+                        before your users are affected.
+                    </p>
+
+
+                    <!-- CTA BUTTONS -->
+
+                    <div
+                        class="mt-8 flex flex-wrap gap-4"
+                    >
+
+                        <a
+                            href="/register/"
+                            class="btn-primary inline-flex h-14 px-7 items-center justify-center rounded-xl orange-gradient text-white font-semibold"
+                        >
+
+                            Start monitoring
+
+                            <span class="ml-3 text-xl">
+                                →
+                            </span>
+
+                        </a>
+
+
+                        <a
+                            href="#monitor"
+                            class="btn-secondary inline-flex h-14 px-7 items-center justify-center rounded-xl border border-gray-200 bg-white font-semibold"
+                        >
+
+                            <span class="mr-3 text-lg">
+                                ▶
+                            </span>
+
+                            Watch demo
+
+                        </a>
+
+                    </div>
+
+
+                    <!-- SMALL BENEFITS -->
+
+                    <div
+                        class="mt-9 flex flex-wrap gap-7 text-sm text-gray-500"
+                    >
+
+
+                        <div class="flex items-center gap-3">
+
+                            <span
+                                class="w-9 h-9 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center orange-text"
+                            >
+                                ϟ
+                            </span>
+
+                            <span>
+                                No credit card
+                                <br>
+                                required
+                            </span>
+
+                        </div>
+
+
+                        <div class="flex items-center gap-3">
+
+                            <span
+                                class="w-9 h-9 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center orange-text"
+                            >
+                                ◷
+                            </span>
+
+                            <span>
+                                Set up in
+                                <br>
+                                minutes
+                            </span>
+
+                        </div>
+
+
+                        <div class="flex items-center gap-3">
+
+                            <span
+                                class="w-9 h-9 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center orange-text"
+                            >
+                                &lt;/&gt;
+                            </span>
+
+                            <span>
+                                Built for
+                                <br>
+                                developers
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================= RIGHT VISUAL ================= -->
+
+                <div
+                    id="monitor"
+                    class="visual relative min-h-[560px]"
+                >
+
+
+                    <!-- BACKGROUND -->
+
+                    <div
+                        class="absolute inset-0 rounded-[45px] soft-orange"
+                    ></div>
+
+
+                    <div
+                        class="absolute top-5 left-1/2 -translate-x-1/2 w-[70%] h-[70%] rounded-full bg-orange-200/20 blur-3xl"
+                    ></div>
+
+
+                    <!-- CONNECTION LINES -->
+
+                    <svg
+                        class="absolute inset-0 w-full h-full"
+                        viewBox="0 0 700 560"
+                        fill="none"
+                    >
+
+                        <path
+                            d="M80 120 C180 120 190 230 300 230"
+                            stroke="#ff8a24"
+                            stroke-width="3"
+                            stroke-linecap="round"
+                            opacity=".85"
+                        />
+
+                        <path
+                            d="M80 280 C180 280 195 280 300 280"
+                            stroke="#ffb36b"
+                            stroke-width="3"
+                            stroke-linecap="round"
+                        />
+
+                        <path
+                            d="M80 440 C180 440 190 330 300 330"
+                            stroke="#ff8a24"
+                            stroke-width="3"
+                            stroke-linecap="round"
+                            opacity=".85"
+                        />
+
+                        <path
+                            d="M400 280 C485 280 500 130 610 130"
+                            stroke="#27ae60"
+                            stroke-width="3"
+                            stroke-linecap="round"
+                        />
+
+                        <path
+                            d="M400 280 C500 280 520 280 610 280"
+                            stroke="#f59e0b"
+                            stroke-width="3"
+                            stroke-linecap="round"
+                        />
+
+                        <path
+                            d="M400 280 C485 280 500 430 610 430"
+                            stroke="#ef4444"
+                            stroke-width="3"
+                            stroke-linecap="round"
+                        />
+
+
+                        <circle
+                            cx="300"
+                            cy="230"
+                            r="6"
+                            fill="#ff6b00"
+                        />
+
+                        <circle
+                            cx="300"
+                            cy="280"
+                            r="6"
+                            fill="#ff6b00"
+                        />
+
+                        <circle
+                            cx="300"
+                            cy="330"
+                            r="6"
+                            fill="#ff6b00"
+                        />
+
+                        <circle
+                            cx="400"
+                            cy="280"
+                            r="6"
+                            fill="#ff6b00"
+                        />
+
+                    </svg>
+
+
+                    <!-- GITHUB API -->
+
+                    <div
+                        class="absolute left-0 top-[75px] float w-[190px] p-4 rounded-2xl bg-white border border-gray-100 card-shadow"
+                    >
+
+                        <div class="flex items-center gap-3">
+
+                            <div
+                                class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-lg"
+                            >
+                                ◉
+                            </div>
+
+                            <div>
+
+                                <p class="font-semibold text-sm">
+                                    GitHub API
+                                </p>
+
+                                <p class="mono text-[10px] text-gray-400">
+                                    api.github.com
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- YOUR SERVICE -->
+
+                    <div
+                        class="absolute left-0 top-[235px] w-[190px] p-4 rounded-2xl bg-white border border-gray-100 card-shadow"
+                    >
+
+                        <div class="flex items-center gap-3">
+
+                            <div
+                                class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center orange-text"
+                            >
+                                ▣
+                            </div>
+
+                            <div>
+
+                                <p class="font-semibold text-sm">
+                                    Your Service
+                                </p>
+
+                                <p class="mono text-[10px] text-gray-400">
+                                    api.example.com
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- THIRD PARTY -->
+
+                    <div
+                        class="absolute left-0 top-[395px] float-delay w-[190px] p-4 rounded-2xl bg-white border border-gray-100 card-shadow"
+                    >
+
+                        <div class="flex items-center gap-3">
+
+                            <div
+                                class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center orange-text"
+                            >
+                                ☁
+                            </div>
+
+                            <div>
+
+                                <p class="font-semibold text-sm">
+                                    Third-Party API
+                                </p>
+
+                                <p class="mono text-[10px] text-gray-400">
+                                    weatherapi.com
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PULSEAPI CENTER -->
+
+                    <div
+                        class="absolute left-1/2 top-[175px] -translate-x-1/2 w-[180px] h-[180px] rounded-[34px] orange-gradient glow flex flex-col items-center justify-center text-white"
+                    >
+
+                        <svg
+                            viewBox="0 0 120 45"
+                            class="w-24 mb-2"
+                            fill="none"
+                        >
+
+                            <path
+                                d="M3 24h17l7-17 11 31 10-25 7 11h24"
+                                stroke="white"
+                                stroke-width="4"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            />
+
+                        </svg>
+
+                        <div class="text-2xl font-bold">
+                            PulseAPI
+                        </div>
+
+                        <div
+                            class="mt-2 text-[9px] tracking-[2px] opacity-80"
+                        >
+                            MONITOR · DETECT · ALERT
+                        </div>
+
+                    </div>
+
+
+                    <!-- HEALTHY -->
+
+                    <div
+                        class="absolute right-0 top-[40px] w-[170px] p-4 rounded-2xl bg-white border border-gray-100 card-shadow"
+                    >
+
+                        <div class="flex items-center gap-2">
+
+                            <span
+                                class="w-3 h-3 rounded-full bg-green-500"
+                            ></span>
+
+                            <span class="font-semibold text-sm">
+                                Healthy
+                            </span>
+
+                        </div>
+
+                        <p class="mono text-xs mt-2 text-gray-500">
+                            200 OK
+                        </p>
+
+                        <div
+                            class="mt-3 h-1.5 rounded-full bg-green-100 overflow-hidden"
+                        >
+
+                            <div
+                                class="h-full w-[88%] rounded-full bg-green-500"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- SLOW -->
+
+                    <div
+                        class="absolute right-0 top-[200px] w-[170px] p-4 rounded-2xl bg-white border border-gray-100 card-shadow"
+                    >
+
+                        <div class="flex items-center gap-2">
+
+                            <span
+                                class="w-3 h-3 rounded-full bg-yellow-400"
+                            ></span>
+
+                            <span class="font-semibold text-sm">
+                                Slow
+                            </span>
+
+                        </div>
+
+                        <p class="mono text-xs mt-2 text-gray-500">
+                            504 ms
+                        </p>
+
+                        <div
+                            class="mt-3 h-1.5 rounded-full bg-yellow-100 overflow-hidden"
+                        >
+
+                            <div
+                                class="h-full w-[54%] rounded-full bg-yellow-400"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- DOWN -->
+
+                    <div
+                        class="absolute right-0 top-[360px] w-[170px] p-4 rounded-2xl bg-white border border-gray-100 card-shadow"
+                    >
+
+                        <div class="flex items-center gap-2">
+
+                            <span
+                                class="w-3 h-3 rounded-full bg-red-500"
+                            ></span>
+
+                            <span class="font-semibold text-sm">
+                                Down
+                            </span>
+
+                        </div>
+
+                        <p class="mono text-xs mt-2 text-gray-500">
+                            Timeout
+                        </p>
+
+                        <div
+                            class="mt-3 h-1.5 rounded-full bg-red-100 overflow-hidden"
+                        >
+
+                            <div
+                                class="h-full w-[30%] rounded-full bg-red-500"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- METRICS CARD -->
+
+                    <div
+                        class="absolute left-[18%] bottom-0 right-[4%] p-5 rounded-[25px] bg-white/95 backdrop-blur border border-gray-100 card-shadow"
+                    >
+
+                        <div
+                            class="flex items-center justify-between mb-4"
+                        >
+
+                            <div class="flex items-center gap-2">
+
+                                <span
+                                    class="w-3 h-3 rounded-full bg-green-500"
+                                ></span>
+
+                                <span class="font-semibold">
+                                    API is healthy
+                                </span>
+
+                            </div>
+
+                            <span class="text-xs text-gray-400">
+                                Checked just now
+                            </span>
+
+                        </div>
+
+
+                        <div
+                            class="grid grid-cols-3 border-b border-gray-100 pb-4"
+                        >
+
+                            <div>
+
+                                <p class="mono text-2xl font-semibold">
+                                    200
+                                </p>
+
+                                <p class="text-[11px] text-gray-400">
+                                    Status Code
+                                </p>
+
+                            </div>
+
+
+                            <div
+                                class="border-l border-gray-100 pl-5"
+                            >
+
+                                <p class="mono text-2xl font-semibold">
+                                    42 ms
+                                </p>
+
+                                <p class="text-[11px] text-gray-400">
+                                    Response Time
+                                </p>
+
+                            </div>
+
+
+                            <div
+                                class="border-l border-gray-100 pl-5"
+                            >
+
+                                <p class="mono text-2xl font-semibold">
+                                    99.98%
+                                </p>
+
+                                <p class="text-[11px] text-gray-400">
+                                    Uptime (24h)
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- CHART -->
+
+                        <svg
+                            viewBox="0 0 500 100"
+                            class="w-full h-20 mt-3"
+                            preserveAspectRatio="none"
+                        >
+
+                            <defs>
+
+                                <linearGradient
+                                    id="chartFill"
+                                    x1="0"
+                                    x2="0"
+                                    y1="0"
+                                    y2="1"
+                                >
+
+                                    <stop
+                                        offset="0"
+                                        stop-color="#ff6b00"
+                                        stop-opacity=".18"
+                                    />
+
+                                    <stop
+                                        offset="1"
+                                        stop-color="#ff6b00"
+                                        stop-opacity="0"
+                                    />
+
+                                </linearGradient>
+
+                            </defs>
+
+
+                            <path
+                                d="M0 75 C35 65 45 78 75 55 C105 35 125 72 160 57 C195 42 210 65 245 45 C280 25 300 58 330 43 C360 28 385 55 415 37 C445 20 465 30 500 18 V100 H0 Z"
+                                fill="url(#chartFill)"
+                            />
+
+
+                            <path
+                                d="M0 75 C35 65 45 78 75 55 C105 35 125 72 160 57 C195 42 210 65 245 45 C280 25 300 58 330 43 C360 28 385 55 415 37 C445 20 465 30 500 18"
+                                stroke="#ff6b00"
+                                stroke-width="3"
+                                fill="none"
+                                class="pulse-line"
+                            />
+
+                        </svg>
+
+
+                        <div class="flex justify-end">
+
+                            <span
+                                class="mono text-[10px] px-2 py-1 rounded-md bg-orange-50 text-orange-600"
+                            >
+                                42 ms
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+</html>

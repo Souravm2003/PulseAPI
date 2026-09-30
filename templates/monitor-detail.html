@@ -1,0 +1,3021 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PulseAPI — Monitor Details</title>
+
+    <!-- Lexend -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orange: "#ff6b00"
+                    },
+
+                    fontFamily: {
+                        lexend: [
+                            "Lexend",
+                            "sans-serif"
+                        ]
+                    }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #ffffff;
+            color: #111111;
+            font-family: "Lexend", sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .orange-gradient {
+            background: linear-gradient(
+                135deg,
+                #ff9a3d 0%,
+                #ff6b00 55%,
+                #f4511e 100%
+            );
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #e7eaf0;
+            box-shadow: 0 8px 30px rgba(17, 17, 17, 0.035);
+        }
+
+        .modal-backdrop {
+            background: rgba(17, 17, 17, 0.45);
+            backdrop-filter: blur(5px);
+        }
+
+        .input {
+            transition: 0.2s ease;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: #ff6b00;
+            box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.08);
+        }
+
+        .chart-grid {
+            stroke: #e5e7eb;
+            stroke-width: 1;
+        }
+
+        .chart-area {
+            fill: #ff6b00;
+            fill-opacity: 0.08;
+        }
+
+        .chart-line {
+            fill: none;
+            stroke: #ff6b00;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .chart-point {
+            fill: #ffffff;
+            stroke: #ff6b00;
+            stroke-width: 2.5;
+        }
+
+        ::-webkit-scrollbar {
+            width: 7px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+
+
+<body>
+
+<!-- =========================================================
+     HEADER
+========================================================= -->
+
+<header class="border-b border-gray-100 bg-white">
+
+    <div
+        class="mx-auto flex h-20 max-w-[1200px] items-center justify-between px-5 sm:px-7"
+    >
+
+        <!-- LOGO -->
+
+        <a
+            href="/dashboard/"
+            class="flex items-center gap-3"
+        >
+
+            <span class="text-2xl font-extrabold tracking-tight">
+                Pulse<span class="text-orange">API</span>
+            </span>
+
+            <span class="text-gray-300">
+                /
+            </span>
+
+            <span class="text-sm font-medium text-gray-500">
+                Monitor Details
+            </span>
+
+        </a>
+
+
+        <!-- RIGHT -->
+
+        <div class="flex items-center gap-3">
+
+            <a
+                href="/dashboard/"
+                class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-bold hover:bg-gray-50"
+            >
+                ← Dashboard
+            </a>
+
+            <button
+                id="logoutButton"
+                type="button"
+                class="px-3 py-2 text-sm font-semibold text-gray-500 hover:text-gray-900"
+            >
+                Logout
+            </button>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<!-- =========================================================
+     MAIN
+========================================================= -->
+
+<main class="mx-auto max-w-[1200px] px-5 py-8 sm:px-7">
+
+    <!-- ERROR -->
+
+    <div
+        id="pageError"
+        class="mb-6 hidden rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-red-600"
+    ></div>
+
+
+    <!-- =====================================================
+         MONITOR HEADER
+    ====================================================== -->
+
+    <section class="card rounded-2xl p-6 sm:p-7">
+
+        <div
+            class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between"
+        >
+
+            <div class="min-w-0">
+
+                <!-- STATUS -->
+
+                <div class="flex items-center gap-3">
+
+                    <span
+                        id="statusDot"
+                        class="h-2.5 w-2.5 rounded-full bg-gray-300"
+                    ></span>
+
+                    <span
+                        id="statusText"
+                        class="text-sm font-bold text-gray-500"
+                    >
+                        Checking...
+                    </span>
+
+                </div>
+
+
+                <!-- NAME -->
+
+                <h1
+                    id="monitorName"
+                    class="mt-4 break-words text-3xl font-extrabold tracking-tight sm:text-4xl"
+                >
+                    Loading...
+                </h1>
+
+
+                <!-- URL -->
+
+                <p
+                    id="monitorUrl"
+                    class="mt-2 break-all text-sm text-gray-500"
+                >
+                    —
+                </p>
+
+            </div>
+
+
+            <!-- ACTIONS -->
+
+            <div class="flex shrink-0 gap-3">
+
+                <button
+                    id="editButton"
+                    type="button"
+                    class="rounded-xl border border-gray-200 px-5 py-3 text-sm font-bold hover:bg-gray-50"
+                >
+                    Edit
+                </button>
+
+
+                <button
+                    id="deleteButton"
+                    type="button"
+                    class="rounded-xl border border-red-200 bg-red-50 px-5 py-3 text-sm font-bold text-red-600 hover:bg-red-100"
+                >
+                    Delete
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="my-7 border-t border-gray-100"></div>
+
+
+        <!-- DETAILS -->
+
+        <div class="grid grid-cols-2 gap-6 sm:grid-cols-4">
+
+            <div>
+
+                <p class="text-xs font-medium text-gray-400">
+                    Method
+                </p>
+
+                <p
+                    id="monitorMethod"
+                    class="mt-2 text-sm font-bold"
+                >
+                    —
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <p class="text-xs font-medium text-gray-400">
+                    Expected Status
+                </p>
+
+                <p
+                    id="monitorExpectedStatus"
+                    class="mt-2 text-sm font-bold"
+                >
+                    —
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <p class="text-xs font-medium text-gray-400">
+                    Timeout
+                </p>
+
+                <p
+                    id="monitorTimeout"
+                    class="mt-2 text-sm font-bold"
+                >
+                    —
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <p class="text-xs font-medium text-gray-400">
+                    Check Interval
+                </p>
+
+                <p
+                    id="monitorInterval"
+                    class="mt-2 text-sm font-bold"
+                >
+                    —
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         ANALYTICS
+    ====================================================== -->
+
+    <section class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+        <div class="card rounded-2xl p-5">
+
+            <p class="text-sm font-medium text-gray-500">
+                Uptime
+            </p>
+
+            <p
+                id="uptimeValue"
+                class="mt-3 text-3xl font-extrabold"
+            >
+                —
+            </p>
+
+            <p class="mt-2 text-xs text-gray-400">
+                Last 24 hours
+            </p>
+
+        </div>
+
+
+        <div class="card rounded-2xl p-5">
+
+            <p class="text-sm font-medium text-gray-500">
+                Avg Response
+            </p>
+
+            <p
+                id="avgResponse"
+                class="mt-3 text-3xl font-extrabold"
+            >
+                —
+            </p>
+
+            <p class="mt-2 text-xs text-gray-400">
+                milliseconds
+            </p>
+
+        </div>
+
+
+        <div class="card rounded-2xl p-5">
+
+            <p class="text-sm font-medium text-gray-500">
+                P95 Response
+            </p>
+
+            <p
+                id="p95Response"
+                class="mt-3 text-3xl font-extrabold"
+            >
+                —
+            </p>
+
+            <p class="mt-2 text-xs text-gray-400">
+                milliseconds
+            </p>
+
+        </div>
+
+
+        <div class="card rounded-2xl p-5">
+
+            <p class="text-sm font-medium text-gray-500">
+                Total Checks
+            </p>
+
+            <p
+                id="totalChecks"
+                class="mt-3 text-3xl font-extrabold"
+            >
+                —
+            </p>
+
+            <p class="mt-2 text-xs text-gray-400">
+                Last 24 hours
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         RESPONSE TIME CHART
+    ====================================================== -->
+
+    <section class="card mt-6 rounded-2xl p-6 sm:p-7">
+
+        <div class="flex items-start justify-between">
+
+            <div>
+
+                <h2 class="text-xl font-extrabold">
+                    Response Time
+                </h2>
+
+                <p class="mt-2 text-sm text-gray-500">
+                    Recent monitor checks
+                </p>
+
+            </div>
+
+            <span class="text-xs font-medium text-gray-400">
+                milliseconds
+            </span>
+
+        </div>
+
+
+        <div class="mt-6 h-[340px] w-full">
+
+            <svg
+                id="responseChart"
+                viewBox="0 0 1000 340"
+                class="h-full w-full"
+                preserveAspectRatio="none"
+            >
+
+                <line
+                    x1="0"
+                    y1="50"
+                    x2="1000"
+                    y2="50"
+                    class="chart-grid"
+                />
+
+                <line
+                    x1="0"
+                    y1="125"
+                    x2="1000"
+                    y2="125"
+                    class="chart-grid"
+                />
+
+                <line
+                    x1="0"
+                    y1="200"
+                    x2="1000"
+                    y2="200"
+                    class="chart-grid"
+                />
+
+                <line
+                    x1="0"
+                    y1="275"
+                    x2="1000"
+                    y2="275"
+                    class="chart-grid"
+                />
+
+                <path
+                    id="chartArea"
+                    class="chart-area"
+                    d=""
+                ></path>
+
+                <path
+                    id="chartLine"
+                    class="chart-line"
+                    d=""
+                ></path>
+
+                <g id="chartPoints"></g>
+
+            </svg>
+
+        </div>
+
+
+        <div
+            id="chartMessage"
+            class="mt-3 text-center text-xs text-gray-400"
+        >
+            Loading checks...
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         RECENT CHECKS
+    ====================================================== -->
+
+    <section class="card mt-6 rounded-2xl p-6 sm:p-7">
+
+        <h2 class="text-xl font-extrabold">
+            Recent Checks
+        </h2>
+
+        <p class="mt-2 text-sm text-gray-500">
+            Latest monitoring results
+        </p>
+
+
+        <div class="mt-6 overflow-x-auto">
+
+            <table class="w-full min-w-[650px]">
+
+                <thead>
+
+                    <tr
+                        class="border-b border-gray-100 text-left text-[10px] font-bold uppercase tracking-wider text-gray-400"
+                    >
+
+                        <th class="pb-4">
+                            Time
+                        </th>
+
+                        <th class="pb-4">
+                            Status
+                        </th>
+
+                        <th class="pb-4">
+                            Response
+                        </th>
+
+                        <th class="pb-4">
+                            Result
+                        </th>
+
+                        <th class="pb-4">
+                            Error
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="checksTable">
+
+                    <tr>
+
+                        <td
+                            colspan="5"
+                            class="py-10 text-center text-sm text-gray-400"
+                        >
+                            Loading checks...
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         INCIDENTS
+    ====================================================== -->
+
+    <section class="card mt-6 rounded-2xl p-6 sm:p-7">
+
+        <h2 class="text-xl font-extrabold">
+            Incidents
+        </h2>
+
+        <p class="mt-2 text-sm text-gray-500">
+            Monitor failure history
+        </p>
+
+
+        <div
+            id="incidentsList"
+            class="mt-6"
+        >
+
+            <div class="py-10 text-center text-sm text-gray-400">
+                Loading incidents...
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- =========================================================
+     EDIT MODAL
+========================================================= -->
+
+<div
+    id="editModal"
+    class="modal-backdrop fixed inset-0 z-50 hidden items-center justify-center p-5"
+>
+
+    <div class="w-full max-w-lg rounded-2xl bg-white shadow-2xl">
+
+        <div class="flex items-center justify-between border-b border-gray-100 px-6 py-5">
+
+            <div>
+
+                <h2 class="text-lg font-extrabold">
+                    Edit Monitor
+                </h2>
+
+                <p class="mt-1 text-xs text-gray-400">
+                    Update your monitoring configuration.
+                </p>
+
+            </div>
+
+
+            <button
+                id="closeEditModal"
+                type="button"
+                class="rounded-lg px-3 py-2 text-gray-400 hover:bg-gray-100"
+            >
+                ✕
+            </button>
+
+        </div>
+
+
+        <form
+            id="editForm"
+            class="space-y-5 p-6"
+        >
+
+            <div>
+
+                <label class="mb-2 block text-xs font-bold text-gray-600">
+                    Monitor name
+                </label>
+
+                <input
+                    id="editName"
+                    type="text"
+                    required
+                    class="input w-full rounded-xl border border-gray-200 px-4 py-3 text-sm"
+                >
+
+            </div>
+
+
+            <div>
+
+                <label class="mb-2 block text-xs font-bold text-gray-600">
+                    URL
+                </label>
+
+                <input
+                    id="editUrl"
+                    type="url"
+                    required
+                    class="input w-full rounded-xl border border-gray-200 px-4 py-3 text-sm"
+                >
+
+            </div>
+
+
+            <div class="grid grid-cols-2 gap-4">
+
+                <div>
+
+                    <label class="mb-2 block text-xs font-bold text-gray-600">
+                        Method
+                    </label>
+
+                    <select
+                        id="editMethod"
+                        class="input w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm"
+                    >
+
+                        <option value="GET">
+                            GET
+                        </option>
+
+                        <option value="POST">
+                            POST
+                        </option>
+
+                        <option value="PUT">
+                            PUT
+                        </option>
+
+                        <option value="PATCH">
+                            PATCH
+                        </option>
+
+                        <option value="DELETE">
+                            DELETE
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div>
+
+                    <label class="mb-2 block text-xs font-bold text-gray-600">
+                        Expected Status
+                    </label>
+
+                    <input
+                        id="editExpectedStatus"
+                        type="number"
+                        min="100"
+                        max="599"
+                        required
+                        class="input w-full rounded-xl border border-gray-200 px-4 py-3 text-sm"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="grid grid-cols-2 gap-4">
+
+                <div>
+
+                    <label class="mb-2 block text-xs font-bold text-gray-600">
+                        Timeout
+                    </label>
+
+                    <input
+                        id="editTimeout"
+                        type="number"
+                        min="1"
+                        required
+                        class="input w-full rounded-xl border border-gray-200 px-4 py-3 text-sm"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label class="mb-2 block text-xs font-bold text-gray-600">
+                        Interval
+                    </label>
+
+                    <input
+                        id="editInterval"
+                        type="number"
+                        min="1"
+                        required
+                        class="input w-full rounded-xl border border-gray-200 px-4 py-3 text-sm"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <label class="flex cursor-pointer items-center gap-3">
+
+                <input
+                    id="editActive"
+                    type="checkbox"
+                    class="h-4 w-4 accent-orange"
+                >
+
+                <span class="text-sm font-semibold text-gray-700">
+                    Monitor active
+                </span>
+
+            </label>
+
+
+            <div
+                id="editError"
+                class="hidden rounded-xl bg-red-50 px-4 py-3 text-xs font-semibold text-red-600"
+            ></div>
+
+
+            <div class="flex justify-end gap-3 pt-2">
+
+                <button
+                    id="cancelEdit"
+                    type="button"
+                    class="rounded-xl border border-gray-200 px-5 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50"
+                >
+                    Cancel
+                </button>
+
+
+                <button
+                    id="saveEdit"
+                    type="submit"
+                    class="rounded-xl orange-gradient px-5 py-3 text-sm font-bold text-white"
+                >
+                    Save Changes
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     DELETE MODAL
+========================================================= -->
+
+<div
+    id="deleteModal"
+    class="modal-backdrop fixed inset-0 z-50 hidden items-center justify-center p-5"
+>
+
+    <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+
+        <div
+            class="flex h-12 w-12 items-center justify-center rounded-xl bg-red-50 text-red-600"
+        >
+            !
+        </div>
+
+
+        <h2 class="mt-5 text-xl font-extrabold">
+            Delete monitor?
+        </h2>
+
+
+        <p class="mt-2 text-sm leading-6 text-gray-500">
+
+            This will permanently delete
+
+            <span
+                id="deleteMonitorName"
+                class="font-bold text-gray-900"
+            >
+                this monitor
+            </span>
+
+            and its monitoring data.
+
+        </p>
+
+
+        <div class="mt-6 flex justify-end gap-3">
+
+            <button
+                id="cancelDelete"
+                type="button"
+                class="rounded-xl border border-gray-200 px-5 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50"
+            >
+                Cancel
+            </button>
+
+
+            <button
+                id="confirmDelete"
+                type="button"
+                class="rounded-xl bg-red-600 px-5 py-3 text-sm font-bold text-white hover:bg-red-700"
+            >
+                Delete Monitor
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    /*
+    ============================================================
+    MONITOR ID
+    ============================================================
+    */
+
+    window.PULSE_MONITOR_ID =
+        Number("{{ monitor_id }}");
+
+
+    /*
+    ============================================================
+    AUTH
+    ============================================================
+    */
+
+    let accessToken =
+        sessionStorage.getItem("access_token");
+
+
+    if (!accessToken) {
+
+        window.location.href =
+            "/login/";
+
+        return;
+    }
+
+
+    /*
+    ============================================================
+    STATE
+    ============================================================
+    */
+
+    let currentMonitor = null;
+
+    let checkResults = [];
+
+
+    /*
+    ============================================================
+    API HELPER
+    ============================================================
+    */
+
+    async function apiFetch(url, options = {}) {
+
+        let accessToken =
+            sessionStorage.getItem("access_token");
+
+
+        let response =
+            await fetch(
+                url,
+                {
+                    ...options,
+
+                    headers: {
+
+                        ...(options.body
+                            ? {
+                                "Content-Type":
+                                    "application/json"
+                            }
+                            : {}),
+
+                        "Authorization":
+                            `Bearer ${accessToken}`,
+
+                        ...(options.headers || {})
+                    }
+                }
+            );
+
+
+        /*
+        ========================================================
+        ACCESS TOKEN EXPIRED
+        ========================================================
+        */
+
+        if (response.status === 401) {
+
+            const refreshToken =
+                sessionStorage.getItem(
+                    "refresh_token"
+                );
+
+
+            /*
+            No refresh token
+            */
+
+            if (!refreshToken) {
+
+                sessionStorage.clear();
+
+                window.location.href =
+                    "/login/";
+
+                return null;
+            }
+
+
+            /*
+            Get new access token
+            */
+
+            const refreshResponse =
+                await fetch(
+                    "/api/auth/refresh/",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            refresh:
+                                refreshToken
+                        })
+                    }
+                );
+
+
+            /*
+            Refresh token invalid
+            */
+
+            if (!refreshResponse.ok) {
+
+                sessionStorage.clear();
+
+                window.location.href =
+                    "/login/";
+
+                return null;
+            }
+
+
+            const refreshData =
+                await refreshResponse.json();
+
+
+            /*
+            Save new access token
+            */
+
+            sessionStorage.setItem(
+                "access_token",
+                refreshData.access
+            );
+
+
+            accessToken =
+                refreshData.access;
+
+
+            /*
+            Retry original request
+            */
+
+            response =
+                await fetch(
+                    url,
+                    {
+                        ...options,
+
+                        headers: {
+
+                            ...(options.body
+                                ? {
+                                    "Content-Type":
+                                        "application/json"
+                                }
+                                : {}),
+
+                            "Authorization":
+                                `Bearer ${accessToken}`,
+
+                            ...(options.headers || {})
+                        }
+                    }
+                );
+        }
+
+
+        return response;
+    }
+
+
+    /*
+    ============================================================
+    ERROR
+    ============================================================
+    */
+
+    function showError(message) {
+
+        const box =
+            document.getElementById(
+                "pageError"
+            );
+
+
+        if (!box) {
+            return;
+        }
+
+
+        box.textContent =
+            message;
+
+
+        box.classList.remove(
+            "hidden"
+        );
+    }
+
+
+    function hideError() {
+
+        const box =
+            document.getElementById(
+                "pageError"
+            );
+
+
+        if (box) {
+
+            box.classList.add(
+                "hidden"
+            );
+        }
+    }
+
+
+    /*
+    ============================================================
+    LOAD MONITOR
+    ============================================================
+    */
+
+    async function loadMonitor() {
+
+        try {
+
+            const response =
+                await apiFetch(
+                    `/api/monitors/${window.PULSE_MONITOR_ID}/`
+                );
+
+
+            if (
+                !response ||
+                !response.ok
+            ) {
+
+                throw new Error(
+                    "Monitor could not be loaded."
+                );
+            }
+
+
+            currentMonitor =
+                await response.json();
+
+
+            renderMonitor();
+
+            populateEditForm();
+
+            updateStatus();
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Monitor error:",
+                error
+            );
+
+
+            showError(
+                error.message
+            );
+        }
+    }
+
+
+    /*
+    ============================================================
+    RENDER MONITOR
+    ============================================================
+    */
+
+    function renderMonitor() {
+
+        if (!currentMonitor) {
+            return;
+        }
+
+
+        const name =
+            document.getElementById(
+                "monitorName"
+            );
+
+
+        const url =
+            document.getElementById(
+                "monitorUrl"
+            );
+
+
+        const method =
+            document.getElementById(
+                "monitorMethod"
+            );
+
+
+        const expectedStatus =
+            document.getElementById(
+                "monitorExpectedStatus"
+            );
+
+
+        const timeout =
+            document.getElementById(
+                "monitorTimeout"
+            );
+
+
+        const interval =
+            document.getElementById(
+                "monitorInterval"
+            );
+
+
+        if (name) {
+
+            name.textContent =
+                currentMonitor.name;
+        }
+
+
+        if (url) {
+
+            url.textContent =
+                currentMonitor.url;
+        }
+
+
+        if (method) {
+
+            method.textContent =
+                currentMonitor.method;
+        }
+
+
+        if (expectedStatus) {
+
+            expectedStatus.textContent =
+                currentMonitor.expected_status;
+        }
+
+
+        if (timeout) {
+
+            timeout.textContent =
+                `${currentMonitor.timeout}s`;
+        }
+
+
+        if (interval) {
+
+            interval.textContent =
+                `${currentMonitor.interval} min`;
+        }
+    }
+
+
+    /*
+    ============================================================
+    STATUS
+    ============================================================
+    */
+
+    function updateStatus() {
+
+        const dot =
+            document.getElementById(
+                "statusDot"
+            );
+
+
+        const text =
+            document.getElementById(
+                "statusText"
+            );
+
+
+        if (!dot || !text) {
+            return;
+        }
+
+
+        if (
+            currentMonitor &&
+            currentMonitor.is_active
+        ) {
+
+            dot.className =
+                "h-2.5 w-2.5 rounded-full bg-green-500";
+
+
+            text.className =
+                "text-sm font-bold text-green-600";
+
+
+            text.textContent =
+                "Active";
+
+        }
+
+        else {
+
+            dot.className =
+                "h-2.5 w-2.5 rounded-full bg-gray-400";
+
+
+            text.className =
+                "text-sm font-bold text-gray-500";
+
+
+            text.textContent =
+                "Paused";
+        }
+    }
+
+
+    /*
+    ============================================================
+    ANALYTICS
+    ============================================================
+    */
+
+    async function loadAnalytics() {
+
+        try {
+
+            const response =
+                await apiFetch(
+                    `/api/monitoring/monitors/${window.PULSE_MONITOR_ID}/analytics/?range=24h`
+                );
+
+
+            if (
+                !response ||
+                !response.ok
+            ) {
+
+                throw new Error(
+                    "Could not load analytics."
+                );
+            }
+
+
+            const data =
+                await response.json();
+
+
+            const uptime =
+                data.uptime_percentage ??
+                data.uptime ??
+                0;
+
+
+            const avg =
+                data.average_response_time_ms ??
+                data.avg_response_time ??
+                data.avg ??
+                null;
+
+
+            const p95 =
+                data.p95_response_time_ms ??
+                data.p95 ??
+                null;
+
+
+            const total =
+                data.total_checks ??
+                0;
+
+
+            const uptimeElement =
+                document.getElementById(
+                    "uptimeValue"
+                );
+
+
+            const avgElement =
+                document.getElementById(
+                    "avgResponse"
+                );
+
+
+            const p95Element =
+                document.getElementById(
+                    "p95Response"
+                );
+
+
+            const totalElement =
+                document.getElementById(
+                    "totalChecks"
+                );
+
+
+            if (uptimeElement) {
+
+                uptimeElement.textContent =
+                    `${Number(uptime).toFixed(2)}%`;
+            }
+
+
+            if (avgElement) {
+
+                avgElement.textContent =
+                    avg !== null
+                        ? `${Number(avg).toFixed(2)} ms`
+                        : "—";
+            }
+
+
+            if (p95Element) {
+
+                p95Element.textContent =
+                    p95 !== null
+                        ? `${Number(p95).toFixed(2)} ms`
+                        : "—";
+            }
+
+
+            if (totalElement) {
+
+                totalElement.textContent =
+                    total;
+            }
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Analytics error:",
+                error
+            );
+
+
+            showError(
+                error.message
+            );
+        }
+    }
+
+
+    /*
+    ============================================================
+    CHECKS
+    ============================================================
+    */
+
+    async function loadChecks() {
+
+        try {
+
+            const response =
+                await apiFetch(
+                    `/api/monitoring/monitors/${window.PULSE_MONITOR_ID}/checks/`
+                );
+
+
+            if (
+                !response ||
+                !response.ok
+            ) {
+
+                throw new Error(
+                    "Could not load checks."
+                );
+            }
+
+
+            const data =
+                await response.json();
+
+
+            checkResults =
+                Array.isArray(data)
+                    ? data
+                    : (
+                        data.results ||
+                        []
+                    );
+
+
+            renderChart();
+
+            renderChecksTable();
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Checks error:",
+                error
+            );
+
+
+            const message =
+                document.getElementById(
+                    "chartMessage"
+                );
+
+
+            if (message) {
+
+                message.textContent =
+                    "Could not load check history.";
+            }
+        }
+    }
+
+
+    /*
+    ============================================================
+    CHART
+    ============================================================
+    */
+
+    function renderChart() {
+
+        const line =
+            document.getElementById(
+                "chartLine"
+            );
+
+
+        const area =
+            document.getElementById(
+                "chartArea"
+            );
+
+
+        const pointsGroup =
+            document.getElementById(
+                "chartPoints"
+            );
+
+
+        const message =
+            document.getElementById(
+                "chartMessage"
+            );
+
+
+        if (
+            !line ||
+            !area ||
+            !pointsGroup
+        ) {
+
+            return;
+        }
+
+
+        const validResults =
+            checkResults
+                .filter(
+                    result =>
+                        result.response_time !== null &&
+                        result.response_time !== undefined
+                )
+                .slice(0, 40)
+                .reverse();
+
+
+        if (!validResults.length) {
+
+            line.setAttribute(
+                "d",
+                ""
+            );
+
+
+            area.setAttribute(
+                "d",
+                ""
+            );
+
+
+            pointsGroup.innerHTML =
+                "";
+
+
+            if (message) {
+
+                message.textContent =
+                    "No response-time data available yet.";
+            }
+
+
+            return;
+        }
+
+
+        if (message) {
+
+            message.textContent =
+                `${validResults.length} checks shown`;
+        }
+
+
+        const values =
+            validResults.map(
+                result =>
+                    Number(
+                        result.response_time
+                    ) * 1000
+            );
+
+
+        const maxValue =
+            Math.max(
+                ...values,
+                1
+            );
+
+
+        const width = 1000;
+
+        const bottom = 275;
+
+        const top = 50;
+
+
+        const step =
+            validResults.length === 1
+                ? 0
+                : width /
+                    (
+                        validResults.length - 1
+                    );
+
+
+        const points =
+            values.map(
+                (value, index) => {
+
+                    const x =
+                        validResults.length === 1
+                            ? width / 2
+                            : index * step;
+
+
+                    const normalized =
+                        value / maxValue;
+
+
+                    const y =
+                        bottom -
+                        normalized *
+                        (
+                            bottom - top
+                        );
+
+
+                    return {
+                        x,
+                        y,
+                        value
+                    };
+                }
+            );
+
+
+        let linePath = "";
+
+
+        points.forEach(
+            (point, index) => {
+
+                if (index === 0) {
+
+                    linePath =
+                        `M ${point.x} ${point.y}`;
+
+                }
+
+                else {
+
+                    linePath +=
+                        ` L ${point.x} ${point.y}`;
+                }
+            }
+        );
+
+
+        line.setAttribute(
+            "d",
+            linePath
+        );
+
+
+        const first =
+            points[0];
+
+
+        const last =
+            points[
+                points.length - 1
+            ];
+
+
+        let areaPath =
+            `M ${first.x} ${bottom}
+             L ${first.x} ${first.y}`;
+
+
+        points
+            .slice(1)
+            .forEach(
+                point => {
+
+                    areaPath +=
+                        ` L ${point.x} ${point.y}`;
+                }
+            );
+
+
+        areaPath +=
+            ` L ${last.x} ${bottom} Z`;
+
+
+        area.setAttribute(
+            "d",
+            areaPath
+        );
+
+
+        pointsGroup.innerHTML =
+            "";
+
+
+        const maxVisiblePoints =
+            25;
+
+
+        const interval =
+            Math.max(
+                1,
+                Math.ceil(
+                    points.length /
+                    maxVisiblePoints
+                )
+            );
+
+
+        points.forEach(
+            (point, index) => {
+
+                if (
+                    index % interval !== 0 &&
+                    index !== points.length - 1
+                ) {
+
+                    return;
+                }
+
+
+                const circle =
+                    document.createElementNS(
+                        "http://www.w3.org/2000/svg",
+                        "circle"
+                    );
+
+
+                circle.setAttribute(
+                    "cx",
+                    point.x
+                );
+
+
+                circle.setAttribute(
+                    "cy",
+                    point.y
+                );
+
+
+                circle.setAttribute(
+                    "r",
+                    "4"
+                );
+
+
+                circle.setAttribute(
+                    "class",
+                    "chart-point"
+                );
+
+
+                circle.setAttribute(
+                    "title",
+                    `${point.value.toFixed(2)} ms`
+                );
+
+
+                pointsGroup.appendChild(
+                    circle
+                );
+            }
+        );
+    }
+
+
+    /*
+    ============================================================
+    CHECK TABLE
+    ============================================================
+    */
+
+    function renderChecksTable() {
+
+        const table =
+            document.getElementById(
+                "checksTable"
+            );
+
+
+        if (!table) {
+            return;
+        }
+
+
+        const recent =
+            checkResults.slice(
+                0,
+                10
+            );
+
+
+        if (!recent.length) {
+
+            table.innerHTML = `
+                <tr>
+                    <td
+                        colspan="5"
+                        class="py-10 text-center text-sm text-gray-400"
+                    >
+                        No checks recorded yet.
+                    </td>
+                </tr>
+            `;
+
+
+            return;
+        }
+
+
+        table.innerHTML =
+            recent
+                .map(
+                    result => {
+
+                        const successful =
+                            result.is_success;
+
+
+                        const responseTime =
+                            result.response_time !== null &&
+                            result.response_time !== undefined
+                                ? `${(
+                                    Number(
+                                        result.response_time
+                                    ) * 1000
+                                ).toFixed(2)} ms`
+                                : "—";
+
+
+                        return `
+                            <tr
+                                class="border-b border-gray-100 last:border-0"
+                            >
+
+                                <td class="py-4 text-xs text-gray-500">
+                                    ${formatDate(
+                                        result.checked_at
+                                    )}
+                                </td>
+
+
+                                <td class="py-4">
+
+                                    <span
+                                        class="rounded-full bg-gray-50 px-2.5 py-1 text-xs font-bold text-gray-700"
+                                    >
+                                        ${result.status_code ?? "—"}
+                                    </span>
+
+                                </td>
+
+
+                                <td class="py-4 text-xs font-semibold">
+                                    ${responseTime}
+                                </td>
+
+
+                                <td class="py-4">
+
+                                    <span
+                                        class="rounded-full px-2.5 py-1 text-[10px] font-bold ${
+                                            successful
+                                                ? "bg-green-50 text-green-600"
+                                                : "bg-red-50 text-red-600"
+                                        }"
+                                    >
+                                        ${
+                                            successful
+                                                ? "Success"
+                                                : "Failed"
+                                        }
+                                    </span>
+
+                                </td>
+
+
+                                <td class="max-w-[250px] truncate py-4 text-xs text-gray-400">
+                                    ${escapeHtml(
+                                        result.error_message ||
+                                        "—"
+                                    )}
+                                </td>
+
+                            </tr>
+                        `;
+                    }
+                )
+                .join("");
+    }
+
+
+    /*
+    ============================================================
+    INCIDENTS
+    ============================================================
+    */
+
+    async function loadIncidents() {
+
+        try {
+
+            const response =
+                await apiFetch(
+                    `/api/monitoring/monitors/${window.PULSE_MONITOR_ID}/incidents/`
+                );
+
+
+            if (
+                !response ||
+                !response.ok
+            ) {
+
+                throw new Error(
+                    "Could not load incidents."
+                );
+            }
+
+
+            const data =
+                await response.json();
+
+
+            const incidents =
+                Array.isArray(data)
+                    ? data
+                    : (
+                        data.results ||
+                        []
+                    );
+
+
+            renderIncidents(
+                incidents
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Incident error:",
+                error
+            );
+
+
+            const container =
+                document.getElementById(
+                    "incidentsList"
+                );
+
+
+            if (container) {
+
+                container.innerHTML = `
+                    <p class="py-8 text-center text-sm text-red-500">
+                        Could not load incidents.
+                    </p>
+                `;
+            }
+        }
+    }
+
+
+    /*
+    ============================================================
+    RENDER INCIDENTS
+    ============================================================
+    */
+
+    function renderIncidents(
+        incidents
+    ) {
+
+        const container =
+            document.getElementById(
+                "incidentsList"
+            );
+
+
+        if (!container) {
+            return;
+        }
+
+
+        if (!incidents.length) {
+
+            container.innerHTML = `
+                <div class="rounded-xl bg-green-50 p-5">
+
+                    <p class="text-sm font-bold text-green-700">
+                        No incidents
+                    </p>
+
+                    <p class="mt-1 text-xs text-green-600">
+                        This monitor has no recorded incidents.
+                    </p>
+
+                </div>
+            `;
+
+
+            return;
+        }
+
+
+        container.innerHTML =
+            incidents
+                .slice(0, 10)
+                .map(
+                    incident => {
+
+                        const resolved =
+                            incident.is_resolved;
+
+
+                        return `
+                            <div
+                                class="border-b border-gray-100 py-5 last:border-0"
+                            >
+
+                                <div
+                                    class="flex items-start justify-between gap-4"
+                                >
+
+                                    <div>
+
+                                        <div
+                                            class="flex items-center gap-2"
+                                        >
+
+                                            <span
+                                                class="h-2.5 w-2.5 ${
+                                                    resolved
+                                                        ? "bg-green-500"
+                                                        : "bg-red-500"
+                                                }"
+                                            ></span>
+
+
+                                            <p class="text-sm font-bold">
+
+                                                ${
+                                                    resolved
+                                                        ? "Incident resolved"
+                                                        : "Active incident"
+                                                }
+
+                                            </p>
+
+                                        </div>
+
+
+                                        <p class="mt-2 text-xs text-gray-400">
+                                            Started:
+                                            ${formatDate(
+                                                incident.started_at
+                                            )}
+                                        </p>
+
+
+                                        ${
+                                            incident.resolved_at
+                                                ? `
+                                                    <p class="mt-1 text-xs text-gray-400">
+                                                        Resolved:
+                                                        ${formatDate(
+                                                            incident.resolved_at
+                                                        )}
+                                                    </p>
+                                                `
+                                                : ""
+                                        }
+
+                                    </div>
+
+
+                                    <span
+                                        class="rounded-full px-3 py-1 text-[10px] font-bold ${
+                                            resolved
+                                                ? "bg-green-50 text-green-600"
+                                                : "bg-red-50 text-red-600"
+                                        }"
+                                    >
+
+                                        ${
+                                            resolved
+                                                ? "Resolved"
+                                                : "Active"
+                                        }
+
+                                    </span>
+
+                                </div>
+
+
+                                ${
+                                    incident.failure_count
+                                        ? `
+                                            <p class="mt-3 text-xs text-gray-400">
+
+                                                Failure count:
+
+                                                <span class="font-bold text-gray-700">
+                                                    ${incident.failure_count}
+                                                </span>
+
+                                            </p>
+                                        `
+                                        : ""
+                                }
+
+                            </div>
+                        `;
+                    }
+                )
+                .join("");
+    }
+
+
+    /*
+    ============================================================
+    EDIT FORM
+    ============================================================
+    */
+
+    function populateEditForm() {
+
+        if (!currentMonitor) {
+            return;
+        }
+
+
+        const name =
+            document.getElementById(
+                "editName"
+            );
+
+
+        const url =
+            document.getElementById(
+                "editUrl"
+            );
+
+
+        const method =
+            document.getElementById(
+                "editMethod"
+            );
+
+
+        const expectedStatus =
+            document.getElementById(
+                "editExpectedStatus"
+            );
+
+
+        const timeout =
+            document.getElementById(
+                "editTimeout"
+            );
+
+
+        const interval =
+            document.getElementById(
+                "editInterval"
+            );
+
+
+        const active =
+            document.getElementById(
+                "editActive"
+            );
+
+
+        if (name) {
+            name.value =
+                currentMonitor.name;
+        }
+
+
+        if (url) {
+            url.value =
+                currentMonitor.url;
+        }
+
+
+        if (method) {
+            method.value =
+                currentMonitor.method;
+        }
+
+
+        if (expectedStatus) {
+            expectedStatus.value =
+                currentMonitor.expected_status;
+        }
+
+
+        if (timeout) {
+            timeout.value =
+                currentMonitor.timeout;
+        }
+
+
+        if (interval) {
+            interval.value =
+                currentMonitor.interval;
+        }
+
+
+        if (active) {
+            active.checked =
+                currentMonitor.is_active;
+        }
+    }
+
+
+    /*
+    ============================================================
+    EDIT MODAL
+    ============================================================
+    */
+
+    function openEditModal() {
+
+        hideError();
+
+        populateEditForm();
+
+
+        const modal =
+            document.getElementById(
+                "editModal"
+            );
+
+
+        if (!modal) {
+            return;
+        }
+
+
+        modal.classList.remove(
+            "hidden"
+        );
+
+
+        modal.classList.add(
+            "flex"
+        );
+    }
+
+
+    function closeEditModal() {
+
+        const modal =
+            document.getElementById(
+                "editModal"
+            );
+
+
+        if (modal) {
+
+            modal.classList.add(
+                "hidden"
+            );
+
+            modal.classList.remove(
+                "flex"
+            );
+        }
+
+
+        const error =
+            document.getElementById(
+                "editError"
+            );
+
+
+        if (error) {
+
+            error.classList.add(
+                "hidden"
+            );
+        }
+    }
+
+
+    /*
+    ============================================================
+    SAVE EDIT
+    ============================================================
+    */
+
+    async function saveMonitor(event) {
+
+        event.preventDefault();
+
+
+        const saveButton =
+            document.getElementById(
+                "saveEdit"
+            );
+
+
+        const errorBox =
+            document.getElementById(
+                "editError"
+            );
+
+
+        if (errorBox) {
+
+            errorBox.classList.add(
+                "hidden"
+            );
+        }
+
+
+        if (saveButton) {
+
+            saveButton.disabled =
+                true;
+
+            saveButton.textContent =
+                "Saving...";
+        }
+
+
+        try {
+
+            const payload = {
+
+                name:
+                    document.getElementById(
+                        "editName"
+                    ).value.trim(),
+
+                url:
+                    document.getElementById(
+                        "editUrl"
+                    ).value.trim(),
+
+                method:
+                    document.getElementById(
+                        "editMethod"
+                    ).value,
+
+                expected_status:
+                    Number(
+                        document.getElementById(
+                            "editExpectedStatus"
+                        ).value
+                    ),
+
+                timeout:
+                    Number(
+                        document.getElementById(
+                            "editTimeout"
+                        ).value
+                    ),
+
+                interval:
+                    Number(
+                        document.getElementById(
+                            "editInterval"
+                        ).value
+                    ),
+
+                is_active:
+                    document.getElementById(
+                        "editActive"
+                    ).checked
+            };
+
+
+            const response =
+                await apiFetch(
+                    `/api/monitors/${window.PULSE_MONITOR_ID}/`,
+                    {
+                        method: "PATCH",
+
+                        body:
+                            JSON.stringify(
+                                payload
+                            )
+                    }
+                );
+
+
+            if (!response) {
+                return;
+            }
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.detail ||
+                    JSON.stringify(data) ||
+                    "Failed to update monitor."
+                );
+            }
+
+
+            currentMonitor =
+                data;
+
+
+            closeEditModal();
+
+            renderMonitor();
+
+            updateStatus();
+
+            populateEditForm();
+
+            await loadAnalytics();
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Update error:",
+                error
+            );
+
+
+            if (errorBox) {
+
+                errorBox.textContent =
+                    error.message;
+
+                errorBox.classList.remove(
+                    "hidden"
+                );
+            }
+
+        }
+
+        finally {
+
+            if (saveButton) {
+
+                saveButton.disabled =
+                    false;
+
+                saveButton.textContent =
+                    "Save Changes";
+            }
+        }
+    }
+
+
+    /*
+    ============================================================
+    DELETE MODAL
+    ============================================================
+    */
+
+    function openDeleteModal() {
+
+        const name =
+            document.getElementById(
+                "deleteMonitorName"
+            );
+
+
+        if (name) {
+
+            name.textContent =
+                currentMonitor
+                    ? currentMonitor.name
+                    : "this monitor";
+        }
+
+
+        const modal =
+            document.getElementById(
+                "deleteModal"
+            );
+
+
+        if (!modal) {
+            return;
+        }
+
+
+        modal.classList.remove(
+            "hidden"
+        );
+
+
+        modal.classList.add(
+            "flex"
+        );
+    }
+
+
+    function closeDeleteModal() {
+
+        const modal =
+            document.getElementById(
+                "deleteModal"
+            );
+
+
+        if (!modal) {
+            return;
+        }
+
+
+        modal.classList.add(
+            "hidden"
+        );
+
+
+        modal.classList.remove(
+            "flex"
+        );
+    }
+
+
+    /*
+    ============================================================
+    DELETE MONITOR
+    ============================================================
+    */
+
+    async function deleteMonitor() {
+
+        const button =
+            document.getElementById(
+                "confirmDelete"
+            );
+
+
+        if (button) {
+
+            button.disabled =
+                true;
+
+            button.textContent =
+                "Deleting...";
+        }
+
+
+        try {
+
+            const response =
+                await apiFetch(
+                    `/api/monitors/${window.PULSE_MONITOR_ID}/`,
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+
+            if (
+                !response ||
+                !(
+                    response.ok ||
+                    response.status === 204
+                )
+            ) {
+
+                let data = {};
+
+
+                try {
+
+                    data =
+                        await response.json();
+
+                }
+
+                catch {
+
+                    data = {};
+                }
+
+
+                throw new Error(
+                    data.detail ||
+                    "Failed to delete monitor."
+                );
+            }
+
+
+            window.location.href =
+                "/dashboard/";
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Delete error:",
+                error
+            );
+
+
+            closeDeleteModal();
+
+            showError(
+                error.message
+            );
+        }
+
+        finally {
+
+            if (button) {
+
+                button.disabled =
+                    false;
+
+                button.textContent =
+                    "Delete Monitor";
+            }
+        }
+    }
+
+
+    /*
+    ============================================================
+    LOGOUT
+    ============================================================
+    */
+
+    function logout() {
+
+        sessionStorage.removeItem(
+            "access_token"
+        );
+
+
+        sessionStorage.removeItem(
+            "refresh_token"
+        );
+
+
+        window.location.href =
+            "/login/";
+    }
+
+
+    /*
+    ============================================================
+    DATE FORMAT
+    ============================================================
+    */
+
+    function formatDate(value) {
+
+        if (!value) {
+            return "Unknown";
+        }
+
+
+        const date =
+            new Date(value);
+
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+
+            return "Unknown";
+        }
+
+
+        return date.toLocaleString(
+            [],
+            {
+                dateStyle: "medium",
+                timeStyle: "short"
+            }
+        );
+    }
+
+
+    /*
+    ============================================================
+    ESCAPE HTML
+    ============================================================
+    */
+
+    function escapeHtml(value) {
+
+        return String(
+            value ?? ""
+        )
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+            .replace(
+                /</g,
+                "&lt;"
+            )
+            .replace(
+                />/g,
+                "&gt;"
+            )
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+    }
+
+
+    /*
+    ============================================================
+    EVENT LISTENERS
+    ============================================================
+    */
+
+    const editButton =
+        document.getElementById(
+            "editButton"
+        );
+
+
+    if (editButton) {
+
+        editButton.addEventListener(
+            "click",
+            openEditModal
+        );
+    }
+
+
+    const closeEditButton =
+        document.getElementById(
+            "closeEditModal"
+        );
+
+
+    if (closeEditButton) {
+
+        closeEditButton.addEventListener(
+            "click",
+            closeEditModal
+        );
+    }
+
+
+    const cancelEditButton =
+        document.getElementById(
+            "cancelEdit"
+        );
+
+
+    if (cancelEditButton) {
+
+        cancelEditButton.addEventListener(
+            "click",
+            closeEditModal
+        );
+    }
+
+
+    const editForm =
+        document.getElementById(
+            "editForm"
+        );
+
+
+    if (editForm) {
+
+        editForm.addEventListener(
+            "submit",
+            saveMonitor
+        );
+    }
+
+
+    const editModal =
+        document.getElementById(
+            "editModal"
+        );
+
+
+    if (editModal) {
+
+        editModal.addEventListener(
+            "click",
+            event => {
+
+                if (
+                    event.target ===
+                    editModal
+                ) {
+
+                    closeEditModal();
+                }
+            }
+        );
+    }
+
+
+    const deleteButton =
+        document.getElementById(
+            "deleteButton"
+        );
+
+
+    if (deleteButton) {
+
+        deleteButton.addEventListener(
+            "click",
+            openDeleteModal
+        );
+    }
+
+
+    const cancelDeleteButton =
+        document.getElementById(
+            "cancelDelete"
+        );
+
+
+    if (cancelDeleteButton) {
+
+        cancelDeleteButton.addEventListener(
+            "click",
+            closeDeleteModal
+        );
+    }
+
+
+    const confirmDeleteButton =
+        document.getElementById(
+            "confirmDelete"
+        );
+
+
+    if (confirmDeleteButton) {
+
+        confirmDeleteButton.addEventListener(
+            "click",
+            deleteMonitor
+        );
+    }
+
+
+    const deleteModal =
+        document.getElementById(
+            "deleteModal"
+        );
+
+
+    if (deleteModal) {
+
+        deleteModal.addEventListener(
+            "click",
+            event => {
+
+                if (
+                    event.target ===
+                    deleteModal
+                ) {
+
+                    closeDeleteModal();
+                }
+            }
+        );
+    }
+
+
+    const logoutButton =
+        document.getElementById(
+            "logoutButton"
+        );
+
+
+    if (logoutButton) {
+
+        logoutButton.addEventListener(
+            "click",
+            logout
+        );
+    }
+
+
+    /*
+    ============================================================
+    INITIAL LOAD
+    ============================================================
+    */
+
+    async function init() {
+
+        console.log(
+            "PulseAPI Monitor ID:",
+            window.PULSE_MONITOR_ID
+        );
+
+
+        await loadMonitor();
+
+        await loadAnalytics();
+
+        await loadChecks();
+
+        await loadIncidents();
+    }
+
+
+    init();
+
+});
+
+</script>
+
+</body>
+</html>
